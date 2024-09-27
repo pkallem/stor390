@@ -1,0 +1,68 @@
+---
+title: "HW 2 Student"
+author: "Pranav Kallem"
+date: "09/20/2024"
+output:
+  html_document:
+    number_sections: yes
+  pdf_document: default
+---
+
+This homework is meant to illustrate the methods of classification algorithms as well as their potential pitfalls.  In class, we demonstrated K-Nearest-Neighbors using the `iris` dataset.  Today I will give you a different subset of this same data, and you will train a KNN classifier.  
+
+```{r, echo = FALSE}
+set.seed(123)
+library(class)
+
+df <- data(iris) 
+
+normal <-function(x) {
+  (x -min(x))/(max(x)-min(x))   
+}
+
+iris_norm <- as.data.frame(lapply(iris[,c(1,2,3,4)], normal))
+
+subset <- c(1:45, 58, 60:70, 82, 94, 110:150)
+iris_train <- iris_norm[subset,] 
+iris_test <- iris_norm[-subset,] 
+
+iris_target_category <- iris[subset,5]
+iris_test_category <- iris[-subset,5]
+
+
+```
+
+#
+Above, I have given you a training-testing partition.  Train the KNN with $K = 5$ on the training data and use this to classify the 50 test observations.  Once you have classified the test observations, create a contingency table -- like we did in class -- to evaluate which observations your algorithm is misclassifying.   
+
+```{r}
+set.seed(123)
+#STUDENT INPUT
+# Train the KNN model
+iris_pred <- knn(train = iris_train, test = iris_test, cl = iris_target_category, k = 5)
+tab <- table(iris_pred, iris_test_category)
+tab
+accuracy <- function(x){
+  sum(diag(x)/(sum(rowSums(x)))) * 100
+}
+accuracy(tab)
+```
+
+#
+
+Discuss your results.  If you have done this correctly, you should have a classification error rate that is roughly 20% higher than what we observed in class.  Why is this the case? In particular run a summary of the `iris_test_category` as well as `iris_target_category` and discuss how this plays a role in your answer.  
+
+*The results from the KNN classifier reveal a classification error rate of approximately 22%, which is roughly 20% higher than what was observed in class. The contingency table indicates that while all setosa samples and versicolor samples were correctly classified, the classifier struggled with virginica, misclassifying 11 of these samples as versicolor and only correctly identifying 9. This higher error rate is because of the the potential imbalance between the training and test categories. The data that we used in class had more balanced numbers of each sample, which allowed it to classify virginica properly. Imbalances lead to overfitting toward the more frequent classes in the training data, therefore resulting in misclassifications.* 
+
+#
+
+Choice of $K$ can also influence this classifier.  Why would choosing $K = 6$ not be advisable for this data? 
+
+*Choosing K=6 may not be advisable due to the risk of ties in classification. With an even K, if three neighbors belong to one class and three to another, the classifier would face uncertainty in determining the majority class, leading to unpredictable outcomes. Additionally, a larger K could incorporate more noise from the training data, especially in cases where the data is not well-separated. Thus, maintaining an odd K makes decision making more clear and helps avoid the effects of class imbalances.*
+
+#
+
+Build a github repository to store your homework assignments.  Share the link in this file.  
+
+*https://github.com/pkallem/stor390*
+
